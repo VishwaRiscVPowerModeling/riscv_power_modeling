@@ -70,7 +70,7 @@ PROGRAM_COUNTER PROGRAM_COUNTER(
     .INST_ADDR(instruction_address));
 
 
-INST_MEMORY instruction_memory(
+inst_memory instruction_memory(
     .INST_ADD(instruction_address),
     .INST_DATA(instruction));
 
