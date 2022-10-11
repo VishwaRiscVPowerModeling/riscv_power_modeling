@@ -3,7 +3,7 @@ module imm_generator (
     offset
 );
 
-    input   logic           [INSTR_WIDTH - 1 : 0] instruction;
+    input   logic           [INST_WIDTH - 1 : 0] instruction;
     output  logic signed    [RISC_V_DATA_WIDTH - 1 : 0] offset;
 
     opcode_t opcode;
