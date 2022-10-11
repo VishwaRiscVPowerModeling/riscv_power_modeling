@@ -32,8 +32,8 @@ logic       ctrl_mem_r;
 logic       ctrl_mem_to_reg;
 logic       ctrl_branch;
 
-logic [INSTRUCTION_WIDTH - 1 : 0] instruction;
-logic [INSTRUCTION_MEMORY_ADDRESS_WIDTH - 1 : 0] instruction_address;
+logic [INST_WIDTH - 1 : 0] instruction;
+logic [INST_MEMORY_ADDRESS_WIDTH - 1 : 0] instruction_address;
 
 logic [RISC_V_DATA_WIDTH - 1 : 0] reg_read_data_0;
 logic [RISC_V_DATA_WIDTH - 1 : 0] reg_read_data_1;
