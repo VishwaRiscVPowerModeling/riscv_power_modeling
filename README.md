@@ -10,4 +10,5 @@ Risc_v Architecture details
     iv:- SB-format:- branch if equal (beq)
  
 Testbench file :- tb_top.sv
-Simulation output dumped by using VCS in fsdb format :- test.fsdb 
+
+VCS simulation file in fsdb format :- test.fsdb 
