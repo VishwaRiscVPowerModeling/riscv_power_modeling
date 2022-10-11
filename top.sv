@@ -71,8 +71,8 @@ PROGRAM_COUNTER PROGRAM_COUNTER(
 
 
 inst_memory instruction_memory(
-    .INST_ADD(instruction_address),
-    .INST_DATA(instruction));
+    .inst_add(instruction_address),
+    .inst_data(instruction));
 
 
 register_file register_file(
