@@ -9,4 +9,5 @@ Risc_v Architecture details
     iii. S-format :- Store(sd)
     iv:- SB-format:- branch if equal (beq)
  
- 
+Testbench file :- tb_top.sv
+Simulation output dumped by using VCS in fsdb format :- test.fsdb 
