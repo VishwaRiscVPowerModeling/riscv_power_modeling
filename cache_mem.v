@@ -11,8 +11,7 @@ module cache #(
     input  rd_req,             
     output reg [31:0] rd_data, 
     input  wr_req,             
-    input  [31:0] wr_data      
-);
+    input  [31:0] wr_data      );
 localparam WORD_ADDR_LEN   = 2;
 localparam MEM_ADDR_LEN    = TAG_ADDR_LEN + SET_ADDR_LEN ;      
 localparam UNUSED_ADDR_LEN = 32 - MEM_ADDR_LEN - LINE_ADDR_LEN - WORD_ADDR_LEN; 
