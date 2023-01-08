@@ -41,4 +41,13 @@ package params_pkg;
     parameter NOP = 32'h0000013;
     
 
+    //2-bit_predictor states 
+    typedef enum logic [1:0] {
+        predict_taken_strong   = 2'b00,
+        predict_taken_weak  = 2'b01,
+        predict_not_taken_weak = 2'b11,
+        predict_not_taken_strong = 2'b10
+    } bpredictor_state_t ;
+
+
 endpackage

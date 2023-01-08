@@ -13,7 +13,9 @@ import params_pkg::*;
 `include "register_file.sv"
 `include "forwarding_unit.sv"
 `include "hazard_unit.sv"
-
+`include "branch_comparator.sv"
+`include "ifid_addr_offset.sv"
+`include "2bit_bpredictor.sv"
 
 
 
@@ -52,6 +54,8 @@ logic [RISC_V_DATA_WIDTH - 1 : 0] reg_read_data_1;
 
 logic signed [RISC_V_DATA_WIDTH - 1 : 0] idex_offset;
 logic signed  [INST_MEMORY_ADDRESS_WIDTH  - 1 : 0]   exmem_offset;
+logic signed  [INST_MEMORY_ADDRESS_WIDTH  - 1 : 0]   branch_offset;
+
 
 ALU_ctrl_t  ALU_ctrl;
 logic [RISC_V_DATA_WIDTH - 1 : 0]   exmem_ALU_data_out;
@@ -74,13 +78,23 @@ logic [INST_MEMORY_ADDRESS_WIDTH  - 1 : 0] idex_pc = 0;
 logic [RISC_V_DATA_WIDTH  -1 : 0] forward_r_data_0,forward_r_data_1;
 
 logic pc_hold, ifid_hold, ctrl_hold;
+logic branch_decision_incorrect_flag;
+
+logic  [INST_MEMORY_ADDRESS_WIDTH - 1 : 0]  branch_inst_addr,ifid_branch_inst_addr,idex_branch_inst_addr;  
+logic  branch_decision,ifid_branch_decision,idex_branch_decision; 
+logic  signed  [RISC_V_DATA_WIDTH - 1 : 0]  pc_branch_offset,ifid_branch_offset,idex_branch_offset;
+
+logic branch_decision_take;
 
 
+wire branch_eq_flag, if_flush;
 
-assign ifid_rs1 = ifid_hold ? ifid_rs1 : ifid_ir [19:15];
-assign ifid_rs2 = ifid_hold ? ifid_rs2 :ifid_ir [24:20];
-assign ifid_pc =  ifid_hold ? ifid_pc :instruction_address;
-assign ifid_ir =  ifid_hold ? ifid_ir :instruction;
+assign if_flush = branch_decision_incorrect_flag ? 1'b1 : 1'b0;
+
+assign ifid_rs1 = if_flush ? REGISTER_FILE_ADDRESS_WIDTH'('b0) : (ifid_hold ? ifid_rs1 : ifid_ir [19:15]);
+assign ifid_rs2 = if_flush ? REGISTER_FILE_ADDRESS_WIDTH'('b0) : (ifid_hold ? ifid_rs2 : ifid_ir [24:20]);
+assign ifid_pc =  if_flush ? INST_MEMORY_ADDRESS_WIDTH'('b0) : (ifid_hold ? ifid_pc :instruction_address);
+assign ifid_ir =  if_flush ? INST_WIDTH'('b0) : (ifid_hold ? ifid_ir :instruction);
 
 assign idex_op  = idex_ir [6:0];
 assign exmem_op = exmem_ir [6:0];
@@ -97,6 +111,15 @@ assign memwb_mux_read_data = memwb_ctrl_mem_to_reg ? memwb_mem_read_data : memwb
 always @(posedge clk or posedge rst ) begin
 if (rst) begin 
 
+    ifid_branch_inst_addr = INST_MEMORY_ADDRESS_WIDTH'('b0);
+    ifid_branch_decision  = 1'b1;
+    ifid_branch_offset    = RISC_V_DATA_WIDTH'('b0);
+
+    idex_branch_inst_addr    =     INST_MEMORY_ADDRESS_WIDTH'('b0);
+    idex_branch_decision     =      1'b1;
+    idex_branch_offset       =       RISC_V_DATA_WIDTH'('b0);
+
+    
     idex_rs1 = 1'b0;
     idex_rs2 =1'b0;
     idex_pc = 1'b0;
@@ -117,6 +140,15 @@ if (rst) begin
     memwb_ALU_data_out = 1'b0;
 
     end else begin
+
+    ifid_branch_inst_addr <= branch_inst_addr;
+    ifid_branch_decision  <= branch_decision;
+    ifid_branch_offset    <= pc_branch_offset;
+
+    idex_branch_inst_addr    <=       ifid_branch_inst_addr;
+    idex_branch_decision     <=       ifid_branch_decision ;
+    idex_branch_offset       <=       ifid_branch_offset  ; 
+
     
     idex_rs1 <= ifid_rs1;
     idex_rs2 <= ifid_rs2;
@@ -144,7 +176,10 @@ if (rst) begin
 end
 
 
-hazard_unit hazard_unit( 
+hazard_unit hazard_unit(
+    .ifid_ir(ifid_ir),
+    .exmem_ctrl_mem_r(exmem_ctrl_mem_r),
+    .exmem_rd(exmem_rd),
     .idex_ctrl_mem_r(idex_ctrl_mem_r), 
     .idex_rd(idex_rd), 
     .ifid_rs1(ifid_rs1),
@@ -153,13 +188,40 @@ hazard_unit hazard_unit(
     .ifid_hold(ifid_hold),
     .ctrl_hold(ctrl_hold));
 
+//program_counter program_counter(
+//    .clk(clk),
+//    .rst(rst),
+//    .pc_hold(pc_hold),
+//    .pc_src(exmem_ctrl_branch & exmem_ALU_zero_flag),
+//    .inst_offset_addr(exmem_offset),
+//    .inst_addr(instruction_address));
+
+
+
+two_bit_bpredictor two_bit_predictor(
+    .clk(clk),
+    .rst(rst),
+    .branch_taken_flag(branch_eq_flag),
+    .branch_flag(idex_ctrl_branch),
+    .branch_decision_take(branch_decision_take));
+
 program_counter program_counter(
     .clk(clk),
     .rst(rst),
     .pc_hold(pc_hold),
-    .pc_src(exmem_ctrl_branch & exmem_ALU_zero_flag),
-    .inst_offset_addr(exmem_offset),
-    .inst_addr(instruction_address));
+    .pc_src(idex_ctrl_branch & branch_eq_flag ),
+    .inst_offset_addr(branch_offset),
+    .inst_addr(instruction_address),
+    .current_inst(instruction),
+    .branch_decision_take(branch_decision_take),
+    .branch_decision_incorrect_flag(branch_decision_incorrect_flag),
+    .branch_inst_addr(branch_inst_addr),
+    .branch_decision(branch_decision),
+    .branch_offset(pc_branch_offset),
+    .idex_branch_inst_addr(idex_branch_inst_addr),
+    .idex_branch_offset(idex_branch_offset),
+    .idex_branch_decision(idex_branch_decision));
+
 
 inst_memory instruction_memory(
     .inst_add(instruction_address),
@@ -207,6 +269,17 @@ register_file register_file(
     .ctrl_reg_w(memwb_ctrl_reg_w),
     .debug(debug));
 
+branch_comparator branch_comparator(
+    .clk(clk),
+    .rst(rst),
+    .r_data_0(forward_r_data_0),
+    .r_data_1(forward_r_data_1),
+    .branch_eq_flag(branch_eq_flag),
+    .idex_ir(idex_ir),
+    .idex_branch_decision(idex_branch_decision),
+    .branch_decision_incorrect_flag(branch_decision_incorrect_flag));
+
+
 
 imm_generator imm_generator(
     .clk(clk),
@@ -215,12 +288,23 @@ imm_generator imm_generator(
     .offset(idex_offset));
 
 
-addr_offset addr_offset(
-    .clk(clk),
+//addr_offset addr_offset(
+//    .clk(clk),
+//    .rst(rst),
+//    .offset(idex_offset),
+//    .pc(idex_pc),
+//    .offset_pc(exmem_offset));
+
+
+ifid_addr_offset ifid_addr_offset(
     .rst(rst),
     .offset(idex_offset),
     .pc(idex_pc),
-    .offset_pc(exmem_offset));
+    .offset_pc(branch_offset));
+
+
+
+
 
 
 ALU_control ALU_control(
