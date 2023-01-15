@@ -49,8 +49,19 @@ module register_file (
             r_data_1 = 0;
             
             end else begin
+
+            if (ctrl_reg_w && reg_num_r0 == reg_num_w) begin 
+            r_data_0  <= w_data;
+            end else begin
             r_data_0 = RF[reg_num_r0];
+            end
+
+            if (ctrl_reg_w && reg_num_r1 == reg_num_w) begin 
+            r_data_1  <= w_data;
+            end else begin
             r_data_1 = RF[reg_num_r1];
+            end 
+
 
             if (ctrl_reg_w) begin
                 RF[reg_num_w] <= w_data;
