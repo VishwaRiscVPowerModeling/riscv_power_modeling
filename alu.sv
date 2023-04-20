@@ -19,6 +19,14 @@ module ALU (
     input   ALU_ctrl_t                              ALU_ctrl;
     input clk,rst; 
 
+    
+    /*
+    ALU operations
+    1.AND
+    2.OR
+    3.ADD
+    4.SUB
+    */
     always @(*) begin
     case (ALU_ctrl)
             AND: int_data_out = data_in_A & data_in_B;
@@ -30,7 +38,7 @@ module ALU (
 
     end
 
-
+    //Zero outputs the comparison results for branch equal operation 
 
     always @(posedge clk or posedge rst)
     begin
