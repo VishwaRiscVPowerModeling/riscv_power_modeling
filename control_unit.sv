@@ -43,7 +43,16 @@ module control_unit (
      logic       int_ctrl_mem_to_reg;
 
      logic       int_ctrl_branch;
+    /*
+            ctrl_ALU_op  --> control signal for ALU operation
+            ctrl_ALU_src --> control signal for ALU source 
+            ctrl_reg_w   --> control signal to enable write data to registers 
+            ctrl_mem_w   --> control signal to enable write data to memory
+            ctrl_mem_r   --> control signal to enable read data from the memory
+            ctrl_mem_to_reg --> control signal to tranfer data from memory to register
+            ctrl_branch     --> control signal enable opertion for branch instruction 
     
+    */
     always @(posedge clk or posedge rst  ) begin
 
     if (rst  ) begin
