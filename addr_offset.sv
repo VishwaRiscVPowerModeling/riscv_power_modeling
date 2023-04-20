@@ -8,7 +8,7 @@ logic signed [RISC_V_DATA_WIDTH - 1 : 0] debug_offset;
 
 
 always @( pc or offset) 
- debug_offset = pc+ (offset[RISC_V_DATA_WIDTH - 1 : 0] << 1);
+ debug_offset = pc+ (offset[RISC_V_DATA_WIDTH - 1 : 0] << 1);  //generates the instrcution address offset for brach opration 
 
 always @(posedge clk or posedge rst) begin 
 if (rst) begin 
