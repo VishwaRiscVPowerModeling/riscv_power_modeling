@@ -6,8 +6,17 @@ bpredictor_state_t  current_state;
 //branch_flag --> idex_ctrl_branch
 //branch_taken_flag --> branch_eq_flag 
 
-
-
+/*4-branch predicition stages
+  predict_taken_strong
+  predict_taken_weak
+  predict_not_taken_weak
+  predict_not_taken_strong 
+  
+ if current branch instruction is not taking the branch -->move downward the order of states 
+ else move upward the state order
+*/
+    
+    
 always@(posedge clk  or posedge rst ) begin 
 if(rst)  begin
     current_state <= predict_taken_weak;
