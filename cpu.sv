@@ -108,7 +108,8 @@ assign reg_read_data_1 = forward_r_data_1;
 
 assign memwb_mux_read_data = memwb_ctrl_mem_to_reg ? memwb_mem_read_data : memwb_ALU_data_out; 
 
-always @(posedge clk or posedge rst ) begin
+
+    always @(posedge clk or posedge rst ) begin
 if (rst) begin 
 
     ifid_branch_inst_addr = INST_MEMORY_ADDRESS_WIDTH'('b0);
