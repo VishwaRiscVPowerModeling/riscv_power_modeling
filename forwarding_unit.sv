@@ -10,10 +10,14 @@ logic flag_exmem_rd_idex_rs2;
 logic flag_memwb_rd_idex_rs1;
 logic flag_memwb_rd_idex_rs2;
 
-
-
-
-
+/*
+forwading unit passes data to next satges of the pipeline when there is a requirement without stalling processor operioans 
+flags to detect four scenarios where forwarding is required
+flag_exmem_rd_idex_rs1;
+flag_exmem_rd_idex_rs2;
+flag_memwb_rd_idex_rs1;
+flag_memwb_rd_idex_rs2;
+*/
 
 always_comb begin 
  flag_exmem_rd_idex_rs1 = (exmem_ctrl_reg_w && (exmem_rd !=0)  && (exmem_rd == idex_rs1)) ;
