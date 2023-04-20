@@ -11,7 +11,10 @@ module imm_generator (
     opcode_t opcode;
 
     logic [11:0] imm;
-
+    /*
+    address offset generator for load,store,branch equal instruction
+    
+    */
     assign opcode = opcode_t'(instruction[6:0]);
 
     always @(posedge clk or posedge rst) begin
