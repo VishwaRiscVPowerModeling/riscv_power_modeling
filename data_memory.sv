@@ -50,14 +50,14 @@ module data_memory (
 
         end else begin
             if (ctrl_mem_w && (address > DATA_MEMORY_ROM_DEPTH)) begin
-                ram_memory[address - DATA_MEMORY_ROM_DEPTH] <= w_data;
+                ram_memory[address - DATA_MEMORY_ROM_DEPTH] <= w_data;    // write data to the ram
             end
 
               if (ctrl_mem_r) begin
                    if (address < DATA_MEMORY_ROM_DEPTH) begin
-                        r_data = rom_memory[address];
+                       r_data = rom_memory[address];                   // read data from rom when read adresss < max rom addresss
                     end else begin
-                        r_data = ram_memory[address - DATA_MEMORY_ROM_DEPTH];
+                        r_data = ram_memory[address - DATA_MEMORY_ROM_DEPTH];  // read data from ram  when read address > max rom address
                     end
        
              end else begin
